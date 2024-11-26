@@ -10,16 +10,22 @@ from sys import exit
 from typing import List
 from re import compile
 
-from document_builder import SpecificationBuilder, RegisterBuilder, ListOfElementsBuilder, TextDocumentBuilder, DocumentBuilderException
+from document_builder import (
+    SpecificationBuilder,
+    RegisterBuilder,
+    ListOfElementsBuilder,
+    TextDocumentBuilder,
+    DocumentBuilderException,
+)
 from common import print, check_call
 
-project_pattern = compile(r'^[А-Я]{4}[-.]\d{2,}\.\d{3,}[0-9.]* \(.*\)$')
-document_pattern = compile(r'^[А-Я]{4}[-.]\d{2,}\.\d{3,}[0-9.]* ((ВП|ПЭ3|РЭ) )?\(.*\)$')
+project_pattern = compile(r"^[А-Я]{4}[-.]\d{2,}\.\d{3,}[0-9.]* \(.*\)$")
+document_pattern = compile(r"^[А-Я]{4}[-.]\d{2,}\.\d{3,}[0-9.]* ((ВП|ПЭ3|ПЗ) )?\(.*\)$")
 
 
 def check_prerequisites():
-    if system() != 'Linux':
-        print('Error: nothing but Linux is supported.')
+    if system() != "Linux":
+        print("Error: nothing but Linux is supported.")
         exit(1)
 
 
@@ -30,48 +36,73 @@ class Builder:
     @staticmethod
     def build_tools(script_path: str, force: bool):
         if not force:
-            tools = ['2.106-form1', '2.106-form5', 'formgen', 'listofelgen']
-            if all(exists(path_join(script_path, 'tools', 'apps', tool, tool)) for tool in tools):
+            tools = ["2.106-form1", "2.106-form5", "formgen", "listofelgen"]
+            if all(
+                exists(path_join(script_path, "tools", "apps", tool, tool))
+                for tool in tools
+            ):
                 # All tools are already built.
                 return
 
-        print('Building tools ...')
-        tmp_path = path_join(script_path, 'tmp')
+        print("Building tools ...")
+        tmp_path = path_join(script_path, "tmp")
         if exists(tmp_path):
             rmtree(tmp_path)
         makedirs(tmp_path)
-        check_call(['cmake', '..'], cwd=tmp_path)
-        check_call(['cmake', '-DCMAKE_BUILD_TYPE=Release', '-DCMAKE_VERBOSE_MAKEFILE=1', '-G', 'Unix Makefiles', '..'], cwd=tmp_path)
-        check_call(['cmake', '--build', '.', '--config', 'Release'], cwd=tmp_path)
+        check_call(["cmake", ".."], cwd=tmp_path)
+        check_call(
+            [
+                "cmake",
+                "-DCMAKE_BUILD_TYPE=Release",
+                "-DCMAKE_VERBOSE_MAKEFILE=1",
+                "-G",
+                "Unix Makefiles",
+                "..",
+            ],
+            cwd=tmp_path,
+        )
+        check_call(["cmake", "--build", ".", "--config", "Release"], cwd=tmp_path)
         rmtree(tmp_path)
-        print('Tools have been built.')
+        print("Tools have been built.")
 
     def enumerate_projects(self) -> List[str]:
         def is_project(candidate: str):
-            return isdir(path_join(self.root, candidate)) and project_pattern.match(candidate) is not None
+            return (
+                isdir(path_join(self.root, candidate))
+                and project_pattern.match(candidate) is not None
+            )
 
-        print('Enumerating projects ...')
-        projects = sorted(candidate for candidate in listdir(self.root) if is_project(candidate))
+        print("Enumerating projects ...")
+        projects = sorted(
+            candidate for candidate in listdir(self.root) if is_project(candidate)
+        )
         if not projects:
-            print('No projects have been found')
+            print("No projects have been found")
             return []
-        print('The following projects have been found:')
+        print("The following projects have been found:")
         for project in projects:
-            print(f'* {project}')
+            print(f"* {project}")
         return projects
 
     def enumerate_project_documents(self, project: str) -> List[str]:
         def is_document(candidate: str):
-            return isdir(path_join(self.root, project, candidate)) and document_pattern.match(candidate) is not None
+            return (
+                isdir(path_join(self.root, project, candidate))
+                and document_pattern.match(candidate) is not None
+            )
 
         print(f'Enumerating project "{project}" documents ...')
-        documents = sorted(candidate for candidate in listdir(path_join(self.root, project)) if is_document(candidate))
+        documents = sorted(
+            candidate
+            for candidate in listdir(path_join(self.root, project))
+            if is_document(candidate)
+        )
         if not documents:
-            print('No documents have been found')
+            print("No documents have been found")
             return []
-        print('The following documents have been found:')
+        print("The following documents have been found:")
         for document in documents:
-            print(f'* {document}')
+            print(f"* {document}")
         return documents
 
     def build_documents(self, project: str):
@@ -80,28 +111,42 @@ class Builder:
             document_type = document_pattern.match(document).group(2)
             if document_type is None:  # Спецификация
                 SpecificationBuilder(self.root, project, document).build()
-            elif document_type == 'ВП':  # Ведомость покупных изделий
+            elif document_type == "ВП":  # Ведомость покупных изделий
                 RegisterBuilder(self.root, project, document).build()
-            elif document_type == 'ПЭ3':  # Перечень элементов
+            elif document_type == "ПЭ3":  # Перечень элементов
                 ListOfElementsBuilder(self.root, project, document).build()
-            elif document_type == 'РЭ':  # Руководство по эксплуатации
+            elif document_type == "ПЗ":  # Руководство по эксплуатации
                 TextDocumentBuilder(self.root, project, document).build()
             else:
-                assert False, f'Unknown document type: {document_type}'
-            print(f'Document "{document}" of project "{project}" has been successfully built.')
+                assert False, f"Unknown document type: {document_type}"
+            print(
+                f'Document "{document}" of project "{project}" has been successfully built.'
+            )
 
     def clean(self, project: str):
         print(f'Cleaning working copy of project "{project}" ...')
-        check_call(['git', 'clean', '-ffdxq'], cwd=path_join(self.root, project))
+        check_call(["git", "clean", "-ffdxq"], cwd=path_join(self.root, project))
 
 
 def main() -> None:
     script_dir = dirname(abspath(realpath(__file__)))
 
-    arg_parser = ArgumentParser(description='Documentation builder')
-    arg_parser.add_argument('--root', type=str, default=script_dir, help='A path to search for projects at')
-    arg_parser.add_argument('--clean', action='store_true', default=False, help='Clean working copy (git clean -ffdxq)')
-    arg_parser.add_argument('--force_tools_rebuild', action='store_true', default=False, help='Forcibly rebuild generating tools')
+    arg_parser = ArgumentParser(description="Documentation builder")
+    arg_parser.add_argument(
+        "--root", type=str, default=script_dir, help="A path to search for projects at"
+    )
+    arg_parser.add_argument(
+        "--clean",
+        action="store_true",
+        default=False,
+        help="Clean working copy (git clean -ffdxq)",
+    )
+    arg_parser.add_argument(
+        "--force_tools_rebuild",
+        action="store_true",
+        default=False,
+        help="Forcibly rebuild generating tools",
+    )
     args = arg_parser.parse_args()
 
     check_prerequisites()
@@ -116,12 +161,12 @@ def main() -> None:
             builder.build_documents(project)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         main()
     except (FileNotFoundError, CalledProcessError, DocumentBuilderException) as e:
-        print(f'Something went wrong: {str(e)}')
+        print(f"Something went wrong: {str(e)}")
         exit(1)
     except Exception as e:
-        print(f'Critical error: {str(e)}')
+        print(f"Critical error: {str(e)}")
         exit(1)

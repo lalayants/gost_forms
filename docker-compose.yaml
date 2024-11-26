@@ -1,0 +1,14 @@
+services:
+  sim:
+    image: gost_forms_image   
+    command: [ "/bin/bash", "-ci", "python3 build.py" ]
+    build:
+      context: .
+    ipc: host
+    stdin_open: true
+    tty: true
+    network_mode: host
+    privileged: true
+    working_dir: /ws
+    volumes:
+      - ./:/ws

@@ -1,0 +1,134 @@
+\documentclass[14pt]{extreport}
+\usepackage{fontspec}
+\usepackage[a4paper,left=25mm,right=10mm,top=15mm,bottom=30mm,footskip=15mm,headsep=5.03978mm]{geometry} % headsep=7.5mm-7pt
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,pdftitle={Квантовый телепортатор. Руководство по эксплуатации},pdfsubject={},pdfkeywords={}]{hyperref}
+\usepackage{pdfpages}
+\usepackage[english, russian]{babel}    
+\usepackage{gostforms}
+
+\renewcommand{\headrulewidth}{0.0mm}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancypagestyle{plain}{\fancyhf{}}
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+\ifdefined\overlaypass
+\newcounter{overlaypage}
+\setcounter{overlaypage}{1}
+\AddToShipoutPicture{\AtPageLowerLeft{\includegraphics[page=\arabic{overlaypage}]{./Form/Form.pdf}\stepcounter{overlaypage}}}
+\fi
+
+\begin{document}
+\begin{sloppypar}
+
+% Начало титульного листа
+\enlargegosttitle
+\gosttitle
+% TOP
+{\strut}
+% TOP LEFT
+{
+УТВЕРЖДЕНО\\
+СУИР.21.34352.001-ЛУ
+}
+% TOP RIGHT
+{\strut}
+% MIDDLE
+{
+% \uppercase{Устройство для измерения внутренних диаметров}\\*[14pt]
+\begin{center}
+    \textbf{Курсовая работа} \\  
+    по дисциплине \\
+    \textit{"<Электронные устройства систем управления">}
+    
+    \uppercase{Разработка устройства для измерения внутренних диаметров стальных
+    цилиндрических деталей
+    }
+\end{center}
+\textbf{Пояснительная записка}\\*[14pt]
+\textbf{СУИР.21.34352.001 ПЗ}
+}
+% BOTTOM LEFT
+{\strut}
+% BOTTOM RIGHT
+{\strut}
+% BOTTOM
+{\strut}
+% Конец титульного листа
+
+\setcounter{page}{2}
+\section*{Аннотация}
+\input{./src/0_annotation.tex}
+% \input{./src/4_chap2.tex}
+
+\renewcommand\contentsname{\vspace{-32mm}\centerline{\Large{Содержание}}}
+\tableofcontents
+\newpage
+
+\input{./src/4_chap2.tex}
+\input{./src/5_chap3.tex}
+\newpage
+\section*{Заключение}
+В результате выполнения комплексной работы было спроектировано устройство для измерения внутренних диаметров стальных цилиндрических деталей, которое содержит в своём составе емкостной чувствительный элемнент. Устройство обеспечивает измерение диаметра в пределах 15-100 мм и выходной сигнал - 16-ти разрядный параллельный код, что соответствует требованиям технического задания. Работа содержит перечень требуемых компонентов для реализации схемы, а также принципиальную электрическую схему разработанного устройства. 
+
+\newpage
+\appendix
+% \makeatletter
+\titleformat{\chapter}[display]
+  {\normalfont\Large\bfseries}
+  {\raggedright Приложение\ \thechapter}
+  {0pt}{\Large\raggedright}
+\titlespacing*{\chapter}{0pt}{0pt}{0pt}
+\renewcommand{\thechapter}{\Asbuk{chapter}}
+
+\chapter{Документация к ATmega8}
+\label{appendmk}
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.9\textwidth]{./images/atmega_dh1.png}
+	% \caption{Функциональная схема устройства: ИП -- источник питания; БП -- блок питания; Д -- датчик; ОУ -- операционный усилитель; АЦП -- аналого-цифровой преобразователь; МК -- микроконтроллер; ЭПУ -- электрическое преобразовательное устройство; ГВЧ -- высокочастотный генератор; Ф -- RC-фильтр; МВ -- мостовой выпрямитель;}
+	\label{fig:atmega}
+\end{figure}
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=\textwidth]{./images/atmega_dh2.png}
+	% \caption{Функциональная схема устройства: ИП -- источник питания; БП -- блок питания; Д -- датчик; ОУ -- операционный усилитель; АЦП -- аналого-цифровой преобразователь; МК -- микроконтроллер; ЭПУ -- электрическое преобразовательное устройство; ГВЧ -- высокочастотный генератор; Ф -- RC-фильтр; МВ -- мостовой выпрямитель;}
+	\label{fig:atmega2}
+\end{figure}
+
+
+\chapter{Документация к операционному усилителю}
+\label{appendmult}
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./images/ou.png}
+	% \caption{Функциональная схема устройства: ИП -- источник питания; БП -- блок питания; Д -- датчик; ОУ -- операционный усилитель; АЦП -- аналого-цифровой преобразователь; МК -- микроконтроллер; ЭПУ -- электрическое преобразовательное устройство; ГВЧ -- высокочастотный генератор; Ф -- RC-фильтр; МВ -- мостовой выпрямитель;}
+	\label{fig:ou}
+\end{figure}
+
+
+\chapter{Документация к ГВЧ}
+\label{appendgenerator}
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./images/generator.png}
+	% \caption{Функциональная схема устройства: ИП -- источник питания; БП -- блок питания; Д -- датчик; ОУ -- операционный усилитель; АЦП -- аналого-цифровой преобразователь; МК -- микроконтроллер; ЭПУ -- электрическое преобразовательное устройство; ГВЧ -- высокочастотный генератор; Ф -- RC-фильтр; МВ -- мостовой выпрямитель;}
+	\label{fig:generator}
+\end{figure}
+
+
+\chapter{Документация к блоку питания}
+\label{appendbp}
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.9\textwidth]{./images/bp.png}
+	% \caption{Функциональная схема устройства: ИП -- источник питания; БП -- блок питания; Д -- датчик; ОУ -- операционный усилитель; АЦП -- аналого-цифровой преобразователь; МК -- микроконтроллер; ЭПУ -- электрическое преобразовательное устройство; ГВЧ -- высокочастотный генератор; Ф -- RC-фильтр; МВ -- мостовой выпрямитель;}
+	\label{fig:bp1}
+\end{figure}
+
+
+\end{sloppypar}
+\end{document}
